@@ -12,6 +12,16 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+
+import environ
+import oscar
+
+env = environ.Env()
+
+# Path helper
+location = lambda x: os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), x)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -30,16 +40,17 @@ ALLOWED_HOSTS = []
 
 # Application definition
 from oscar.defaults import *
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.sites',
     'django.contrib.flatpages',
+
     'oscar',
     'oscar.apps.analytics',
     'oscar.apps.checkout',
@@ -70,8 +81,15 @@ INSTALLED_APPS = [
     'oscar.apps.dashboard.communications',
     'oscar.apps.dashboard.shipping',
 
+
+    # 3rd-party apps that oscar depends on
     'widget_tweaks',
+    'haystack',
+    'treebeard',
+    'sorl.thumbnail',
+    'django_tables2',
 ]
+
 SITE_ID = 1
 
 
@@ -85,6 +103,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'oscar.apps.basket.middleware.BasketMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -115,10 +134,12 @@ TEMPLATES = [
 
 
                 'oscar.apps.search.context_processors.search_form',
-                'oscar.apps.promotions.context_processors.promotions',
+
                 'oscar.apps.checkout.context_processors.checkout',
                 'oscar.apps.customer.notifications.context_processors.notifications',
                 'oscar.core.context_processors.metadata',
+
+
             ],
         },
     },
@@ -184,5 +205,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+MEDIA_ROOT = location("public/media")
+MEDIA_URL = '/media/'
+STATIC_ROOT = location('public/static')
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = (
+    location('static/'),
+)
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
